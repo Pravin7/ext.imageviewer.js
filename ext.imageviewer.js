@@ -113,31 +113,35 @@ Ext.define('ImageViewer', {
     },
 
     stretchHorizontally: function () {
-        var me = this;
+        var me = this,
+            imageContainerWidth = me.getImageContainer().getWidth();
 
         me.setImageSize({
-            width: me.getImageContainer().getWidth() - 20,
-            height: me.getOriginalImageHeight() * (me.getImageContainer().getWidth() - 20) / me.getOriginalImageWidth()
+            width: imageContainerWidth - 20,
+            height: me.getOriginalImageHeight() * (imageContainerWidth - 20) / me.getOriginalImageWidth()
         });
 
         me.centerImage();
     },
 
     stretchVertically: function () {
-        var me = this;
+        var me = this,
+            imageContainerHeight = me.getImageContainer().getHeight();
 
         me.setImageSize({
-            width: me.getOriginalImageWidth() * (me.getImageContainer().getHeight() - 20) / me.getOriginalImageHeight(),
-            height: me.getImageContainer().getHeight() - 20
+            width: me.getOriginalImageWidth() * (imageContainerHeight - 20) / me.getOriginalImageHeight(),
+            height: imageContainerHeight - 20
         });
 
         me.centerImage();
     },
 
     stretchOptimally: function () {
-        var me = this;
+        var me = this,
+            imageContainer = me.getImageContainer(),
+            adjustedImageSize = me.getAdjustedImageSize();
 
-        if (me.getAdjustedImageWidth() * me.getImageContainer().getHeight() / me.getAdjustedImageHeight() > me.getImageContainer().getWidth()) {
+        if (adjustedImageSize.width * imageContainer.getHeight() / adjustedImageSize.height > imageContainer.getWidth()) {
             me.stretchHorizontally();
         } else {
             me.stretchVertically();
@@ -145,17 +149,19 @@ Ext.define('ImageViewer', {
     },
 
     centerImage: function () {
-        var me = this;
+        var me = this,
+            imageContainer = me.getImageContainer(),
+            adjustedImageSize = me.getAdjustedImageSize();
 
         me.setMargins({
-            top: (me.getImageContainer().getHeight() - me.getAdjustedImageHeight() - 20) / 2,
-            left: (me.getImageContainer().getWidth() - me.getAdjustedImageWidth() - 20) / 2
+            top: (imageContainer.getHeight() - adjustedImageSize.height - 20) / 2,
+            left: (imageContainer.getWidth() - adjustedImageSize.width - 20) / 2
         });
     },
 
     mousedown: function (event) {
         var me = this,
-            margins = this.getMargins();
+            margins = me.getMargins();
 
         event.stopEvent();
 
@@ -192,59 +198,65 @@ Ext.define('ImageViewer', {
 
     zoomOut: function (event) {
         var me = this,
-            margins = this.getMargins();
+            margins = me.getMargins(),
+            adjustedImageSize = me.getAdjustedImageSize();
 
         event.stopEvent();
 
         me.setMargins({
-            top: margins.top + me.getAdjustedImageHeight() * 0.05,
-            left: margins.left + me.getAdjustedImageWidth() * 0.05
+            top: margins.top + adjustedImageSize.height * 0.05,
+            left: margins.left + adjustedImageSize.width * 0.05
         });
 
         me.setImageSize({
-            width: me.getAdjustedImageWidth() * 0.9,
-            height: me.getOriginalImageHeight() * me.getAdjustedImageWidth() * 0.9 / me.getOriginalImageWidth()
+            width: adjustedImageSize.width * 0.9,
+            height: me.getOriginalImageHeight() * adjustedImageSize.width * 0.9 / me.getOriginalImageWidth()
         });
     },
 
     zoomIn: function (event) {
         var me = this,
-            margins = this.getMargins();
+            margins = me.getMargins(),
+            adjustedImageSize = me.getAdjustedImageSize();
 
         event.stopEvent();
 
         me.setMargins({
-            top: margins.top - me.getAdjustedImageHeight() * 0.05,
-            left: margins.left - me.getAdjustedImageWidth() * 0.05
+            top: margins.top - adjustedImageSize.height * 0.05,
+            left: margins.left - adjustedImageSize.width * 0.05
         });
 
         me.setImageSize({
-            width: me.getAdjustedImageWidth() * 1.1,
-            height: me.getOriginalImageHeight() * me.getAdjustedImageWidth() * 1.1 / me.getOriginalImageWidth()
+            width: adjustedImageSize.width * 1.1,
+            height: me.getOriginalImageHeight() * adjustedImageSize.width * 1.1 / me.getOriginalImageWidth()
         });
     },
 
     rotateClockwise: function () {
-        var me = this;
+        var me = this,
+            rotation = me.getRotation();
 
-        me.setRotation(me.getRotation() + 90);
+        rotation += 90;
 
-        if (me.getRotation() > 360) {
-            me.setRotation(me.getRotation() - 360);
+        if (rotation > 360) {
+            rotation -= 360;
         }
 
+        me.setRotation(rotation);
         me.rotateImage();
     },
 
     rotateAntiClockwise: function () {
-        var me = this;
+        var me = this,
+            rotation = me.getRotation();
 
-        me.setRotation(me.getRotation() - 90);
+        rotation -= 90;
 
-        if (me.getRotation() < 0) {
-            me.setRotation(me.getRotation() + 360);
+        if (rotation < 0) {
+            rotation += 360;
         }
 
+        me.setRotation(rotation);
         me.rotateImage();
     },
 
@@ -266,39 +278,45 @@ Ext.define('ImageViewer', {
     },
 
     setMargins: function (margins) {
-        var me = this;
+        var me = this,
+            rotation = me.getRotation(),
+            adjustedImageSize = me.getAdjustedImageSize(),
+            imageContainer = me.getImageContainer(),
+            imageContainerWidth = imageContainer.getWidth(),
+            imageContainerHeight = imageContainer.getHeight();
 
-        if (me.getAdjustedImageWidth() > me.getImageContainer().getWidth() - 20) {
+        if (adjustedImageSize.width > imageContainerWidth - 20) {
             if (margins.left > 0) {
                 margins.left = 0;
-            } else if (margins.left < me.getImageContainer().getWidth() - me.getAdjustedImageWidth() - 20) {
-                margins.left = me.getImageContainer().getWidth() - me.getAdjustedImageWidth() - 20;
+            } else if (margins.left < imageContainerWidth - adjustedImageSize.width - 20) {
+                margins.left = imageContainerWidth - adjustedImageSize.width - 20;
             }
         } else {
             if (margins.left < 0) {
                 margins.left = 0;
-            } else if (margins.left > me.getImageContainer().getWidth() - me.getAdjustedImageWidth() - 20) {
-                margins.left = me.getImageContainer().getWidth() - me.getAdjustedImageWidth() - 20;
+            } else if (margins.left > imageContainerWidth - adjustedImageSize.width - 20) {
+                margins.left = imageContainerWidth - adjustedImageSize.width - 20;
             }
         }
 
-        if (me.getAdjustedImageHeight() > me.getImageContainer().getHeight() - 20) {
+        if (adjustedImageSize.height > imageContainerHeight - 20) {
             if (margins.top > 0) {
                 margins.top = 0;
-            } else if (margins.top < me.getImageContainer().getHeight() - me.getAdjustedImageHeight() - 20) {
-                margins.top = me.getImageContainer().getHeight() - me.getAdjustedImageHeight() - 20;
+            } else if (margins.top < imageContainerHeight - adjustedImageSize.height - 20) {
+                margins.top = imageContainerHeight - adjustedImageSize.height - 20;
             }
         } else {
             if (margins.top < 0) {
                 margins.top = 0;
-            } else if (margins.top > me.getImageContainer().getHeight() - me.getAdjustedImageHeight() - 20) {
-                margins.top = me.getImageContainer().getHeight() - me.getAdjustedImageHeight() - 20;
+            } else if (margins.top > imageContainerHeight - adjustedImageSize.height - 20) {
+                margins.top = imageContainerHeight - adjustedImageSize.height - 20;
             }
         }
 
-        if (me.getRotation() === 90 || me.getRotation() === 270) {
-            margins.top = margins.top - (me.getImageHeight() - me.getImageWidth()) / 2;
-            margins.left = margins.left + (me.getImageHeight() - me.getImageWidth()) / 2;
+        if (rotation === 90 || rotation === 270) {
+            var marginAdjustment = (me.getImageHeight() - me.getImageWidth()) / 2;
+            margins.top = margins.top - marginAdjustment;
+            margins.left = margins.left + marginAdjustment;
         }
 
         me.getImage().getEl().setStyle('margin-left', margins.left + 'px');
@@ -306,45 +324,46 @@ Ext.define('ImageViewer', {
     },
 
     getMargins: function () {
-        var me = this;
+        var me = this,
+            rotation = me.getRotation(),
+            imageEl = me.getImage().getEl();
 
         var margins = {
-            top: parseInt(me.getImage().getEl().getStyle('margin-top'), 10),
-            left: parseInt(me.getImage().getEl().getStyle('margin-left'), 10)
+            top: parseInt(imageEl.getStyle('margin-top'), 10),
+            left: parseInt(imageEl.getStyle('margin-left'), 10)
         };
 
-        if (me.getRotation() === 90 || me.getRotation() === 270) {
-            margins.top = margins.top + (me.getImageHeight() - me.getImageWidth()) / 2;
-            margins.left = margins.left - (me.getImageHeight() - me.getImageWidth()) / 2;
+        if (rotation === 90 || rotation === 270) {
+            var marginAdjustment = (me.getImageHeight() - me.getImageWidth()) / 2;
+            margins.top = margins.top + marginAdjustment;
+            margins.left = margins.left - marginAdjustment;
         }
 
         return margins;
     },
 
-    getAdjustedImageHeight: function () {
-        var me = this;
+    getAdjustedImageSize: function () {
+        var me = this,
+            rotation = me.getRotation();
 
-        if (me.getRotation() === 90 || me.getRotation() === 270) {
-            return me.getImageWidth();
+        if (rotation === 90 || rotation === 270) {
+            return {
+                width: me.getImageHeight(),
+                height: me.getImageWidth()
+            };
         } else {
-            return me.getImageHeight();
-        }
-    },
-
-    getAdjustedImageWidth: function () {
-        var me = this;
-
-        if (me.getRotation() === 90 || me.getRotation() === 270) {
-            return me.getImageHeight();
-        } else {
-            return me.getImageWidth();
+            return {
+                width: me.getImageWidth(),
+                height: me.getImageHeight()
+            };
         }
     },
 
     setImageSize: function (size) {
-        var me = this;
+        var me = this,
+            rotation = me.getRotation();
 
-        if (me.getRotation() === 90 || me.getRotation() === 270) {
+        if (rotation === 90 || rotation === 270) {
             me.setImageWidth(size.height);
             me.setImageHeight(size.width);
         } else {
