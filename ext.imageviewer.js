@@ -8,8 +8,10 @@ Ext.define('ImageViewer', {
 
     config: {
         isMoving: false,
-        originalWidth: null,
-        originalHeight: null,
+        imageWidth: null,
+        imageHeight: null,
+        originalImageWidth: null,
+        originalImageHeight: null,
         clickX: null,
         clickY: null,
         lastMarginX: null,
@@ -82,8 +84,13 @@ Ext.define('ImageViewer', {
                 listeners: {
                     render: function (image) {
                         image.el.dom.onload = function () {
-                            me.setOriginalWidth(image.el.dom.width);
-                            me.setOriginalHeight(image.el.dom.height);
+                            me.setRotation(0);
+                            me.rotateImage();
+                            me.setOriginalImageWidth(image.el.dom.width);
+                            me.setOriginalImageHeight(image.el.dom.height);
+                            me.setImageWidth(image.el.dom.width);
+                            me.setImageHeight(image.el.dom.height);
+                            me.stretchOptimally();
                         };
                     }
                 }
@@ -101,7 +108,7 @@ Ext.define('ImageViewer', {
 
         me.setImageSize({
             width: me.getImageContainer().getWidth() - 20,
-            height: me.getOriginalHeight() * (me.getImageContainer().getWidth() - 20) / me.getOriginalWidth()
+            height: me.getOriginalImageHeight() * (me.getImageContainer().getWidth() - 20) / me.getOriginalImageWidth()
         });
 
         me.centerImage();
@@ -111,7 +118,7 @@ Ext.define('ImageViewer', {
         var me = this;
 
         me.setImageSize({
-            width: me.getOriginalWidth() * (me.getImageContainer().getHeight() - 20) / me.getOriginalHeight(),
+            width: me.getOriginalImageWidth() * (me.getImageContainer().getHeight() - 20) / me.getOriginalImageHeight(),
             height: me.getImageContainer().getHeight() - 20
         });
 
@@ -121,7 +128,7 @@ Ext.define('ImageViewer', {
     stretchOptimally: function () {
         var me = this;
 
-        if (me.getImageWidth() * me.getImageContainer().getHeight() / me.getImageHeight() > me.getImageContainer().getWidth()) {
+        if (me.getAdjustedImageWidth() * me.getImageContainer().getHeight() / me.getAdjustedImageHeight() > me.getImageContainer().getWidth()) {
             me.stretchHorizontally();
         } else {
             me.stretchVertically();
@@ -132,8 +139,8 @@ Ext.define('ImageViewer', {
         var me = this;
 
         me.setMargins({
-            top: (me.getImageContainer().getHeight() - me.getImageHeight() - 20) / 2,
-            left: (me.getImageContainer().getWidth() - me.getImageWidth() - 20) / 2
+            top: (me.getImageContainer().getHeight() - me.getAdjustedImageHeight() - 20) / 2,
+            left: (me.getImageContainer().getWidth() - me.getAdjustedImageWidth() - 20) / 2
         });
     },
 
@@ -181,13 +188,13 @@ Ext.define('ImageViewer', {
         event.stopEvent();
 
         me.setMargins({
-            top: margins.top + me.getImageHeight() * 0.05,
-            left: margins.left + me.getImageWidth() * 0.05
+            top: margins.top + me.getAdjustedImageHeight() * 0.05,
+            left: margins.left + me.getAdjustedImageWidth() * 0.05
         });
 
         me.setImageSize({
-            width: me.getImageWidth() * 0.9,
-            height: me.getOriginalHeight() * me.getImageWidth() * 0.9 / me.getOriginalWidth()
+            width: me.getAdjustedImageWidth() * 0.9,
+            height: me.getOriginalImageHeight() * me.getAdjustedImageWidth() * 0.9 / me.getOriginalImageWidth()
         });
     },
 
@@ -198,13 +205,13 @@ Ext.define('ImageViewer', {
         event.stopEvent();
 
         me.setMargins({
-            top: margins.top - me.getImageHeight() * 0.05,
-            left: margins.left - me.getImageWidth() * 0.05
+            top: margins.top - me.getAdjustedImageHeight() * 0.05,
+            left: margins.left - me.getAdjustedImageWidth() * 0.05
         });
 
         me.setImageSize({
-            width: me.getImageWidth() * 1.1,
-            height: me.getOriginalHeight() * me.getImageWidth() * 1.1 / me.getOriginalWidth()
+            width: me.getAdjustedImageWidth() * 1.1,
+            height: me.getOriginalImageHeight() * me.getAdjustedImageWidth() * 1.1 / me.getOriginalImageWidth()
         });
     },
 
@@ -236,9 +243,9 @@ Ext.define('ImageViewer', {
         var me = this,
             tmpOriginalWidth;
 
-        tmpOriginalWidth = me.getOriginalWidth();
-        me.setOriginalWidth(me.getOriginalHeight());
-        me.setOriginalHeight(tmpOriginalWidth);
+        tmpOriginalWidth = me.getOriginalImageWidth();
+        me.setOriginalImageWidth(me.getOriginalImageHeight());
+        me.setOriginalImageHeight(tmpOriginalWidth);
 
         me.getImage().getEl().setStyle('transform', 'rotate(' + me.getRotation() + 'deg)');
         me.getImage().getEl().setStyle('-o-transform', 'rotate(' + me.getRotation() + 'deg)');
@@ -252,37 +259,37 @@ Ext.define('ImageViewer', {
     setMargins: function (margins) {
         var me = this;
 
-        if (me.getImageWidth() > me.getImageContainer().getWidth() - 20) {
+        if (me.getAdjustedImageWidth() > me.getImageContainer().getWidth() - 20) {
             if (margins.left > 0) {
                 margins.left = 0;
-            } else if (margins.left < me.getImageContainer().getWidth() - me.getImageWidth() - 20) {
-                margins.left = me.getImageContainer().getWidth() - me.getImageWidth() - 20;
+            } else if (margins.left < me.getImageContainer().getWidth() - me.getAdjustedImageWidth() - 20) {
+                margins.left = me.getImageContainer().getWidth() - me.getAdjustedImageWidth() - 20;
             }
         } else {
             if (margins.left < 0) {
                 margins.left = 0;
-            } else if (margins.left > me.getImageContainer().getWidth() - me.getImageWidth() - 20) {
-                margins.left = me.getImageContainer().getWidth() - me.getImageWidth() - 20;
+            } else if (margins.left > me.getImageContainer().getWidth() - me.getAdjustedImageWidth() - 20) {
+                margins.left = me.getImageContainer().getWidth() - me.getAdjustedImageWidth() - 20;
             }
         }
 
-        if (me.getImageHeight() > me.getImageContainer().getHeight() - 20) {
+        if (me.getAdjustedImageHeight() > me.getImageContainer().getHeight() - 20) {
             if (margins.top > 0) {
                 margins.top = 0;
-            } else if (margins.top < me.getImageContainer().getHeight() - me.getImageHeight() - 20) {
-                margins.top = me.getImageContainer().getHeight() - me.getImageHeight() - 20;
+            } else if (margins.top < me.getImageContainer().getHeight() - me.getAdjustedImageHeight() - 20) {
+                margins.top = me.getImageContainer().getHeight() - me.getAdjustedImageHeight() - 20;
             }
         } else {
             if (margins.top < 0) {
                 margins.top = 0;
-            } else if (margins.top > me.getImageContainer().getHeight() - me.getImageHeight() - 20) {
-                margins.top = me.getImageContainer().getHeight() - me.getImageHeight() - 20;
+            } else if (margins.top > me.getImageContainer().getHeight() - me.getAdjustedImageHeight() - 20) {
+                margins.top = me.getImageContainer().getHeight() - me.getAdjustedImageHeight() - 20;
             }
         }
 
         if (me.getRotation() === 90 || me.getRotation() === 270) {
-            margins.top = margins.top - (me.getImage().getHeight() - me.getImage().getWidth()) / 2;
-            margins.left = margins.left + (me.getImage().getHeight() - me.getImage().getWidth()) / 2;
+            margins.top = margins.top - (me.getImageHeight() - me.getImageWidth()) / 2;
+            margins.left = margins.left + (me.getImageHeight() - me.getImageWidth()) / 2;
         }
 
         me.getImage().getEl().setStyle('margin-left', margins.left + 'px');
@@ -298,30 +305,30 @@ Ext.define('ImageViewer', {
         };
 
         if (me.getRotation() === 90 || me.getRotation() === 270) {
-            margins.top = margins.top + (me.getImage().getHeight() - me.getImage().getWidth()) / 2;
-            margins.left = margins.left - (me.getImage().getHeight() - me.getImage().getWidth()) / 2;
+            margins.top = margins.top + (me.getImageHeight() - me.getImageWidth()) / 2;
+            margins.left = margins.left - (me.getImageHeight() - me.getImageWidth()) / 2;
         }
 
         return margins;
     },
 
-    getImageHeight: function () {
+    getAdjustedImageHeight: function () {
         var me = this;
 
         if (me.getRotation() === 90 || me.getRotation() === 270) {
-            return me.getImage().getWidth();
+            return me.getImageWidth();
         } else {
-            return me.getImage().getHeight();
+            return me.getImageHeight();
         }
     },
 
-    getImageWidth: function () {
+    getAdjustedImageWidth: function () {
         var me = this;
 
         if (me.getRotation() === 90 || me.getRotation() === 270) {
-            return me.getImage().getHeight();
+            return me.getImageHeight();
         } else {
-            return me.getImage().getWidth();
+            return me.getImageWidth();
         }
     },
 
@@ -329,12 +336,24 @@ Ext.define('ImageViewer', {
         var me = this;
 
         if (me.getRotation() === 90 || me.getRotation() === 270) {
-            me.getImage().setWidth(size.height);
-            me.getImage().setHeight(size.width);
+            me.setImageWidth(size.height);
+            me.setImageHeight(size.width);
         } else {
-            me.getImage().setWidth(size.width);
-            me.getImage().setHeight(size.height);
+            me.setImageWidth(size.width);
+            me.setImageHeight(size.height);
         }
+    },
+
+    applyImageWidth: function (width) {
+        var me = this;
+        me.getImage().setWidth(width);
+        return width;
+    },
+
+    applyImageHeight: function (height) {
+        var me = this;
+        me.getImage().setHeight(height);
+        return height;
     },
 
     getImage: function () {
