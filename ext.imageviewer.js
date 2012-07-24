@@ -73,7 +73,6 @@ Ext.define('ImageViewer', {
                 padding: '10px',
                 cursor: 'move'
             },
-            listeners: { el: { mousedown: me.mousedown, scope: me } },
             items: {
                 xtype: 'image',
                 mode: 'element',
@@ -97,8 +96,18 @@ Ext.define('ImageViewer', {
             }
         }];
 
-        Ext.EventManager.addListener(window, 'mouseup', me.mouseup, me);
-        Ext.EventManager.addListener(window, 'mousemove', me.mousemove, me);
+        me.callParent();
+    },
+
+    initEvents: function () {
+        var me = this;
+
+        me.mon(me.getImageContainer().getEl(), {
+            mouseup: me.mouseup,
+            mousedown: me.mousedown,
+            mousemove: me.mousemove,
+            scope: me
+        });
 
         me.callParent();
     },
