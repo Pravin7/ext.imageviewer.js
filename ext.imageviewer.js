@@ -262,17 +262,20 @@ Ext.define('ImageViewer', {
 
     rotateImage: function () {
         var me = this,
-            tmpOriginalWidth;
+            tmpOriginalWidth,
+            transformStyle = 'rotate(' + me.getRotation() + 'deg)';
 
         tmpOriginalWidth = me.getOriginalImageWidth();
         me.setOriginalImageWidth(me.getOriginalImageHeight());
         me.setOriginalImageHeight(tmpOriginalWidth);
 
-        me.getImage().getEl().setStyle('transform', 'rotate(' + me.getRotation() + 'deg)');
-        me.getImage().getEl().setStyle('-o-transform', 'rotate(' + me.getRotation() + 'deg)');
-        me.getImage().getEl().setStyle('-ms-transform', 'rotate(' + me.getRotation() + 'deg)');
-        me.getImage().getEl().setStyle('-moz-transform', 'rotate(' + me.getRotation() + 'deg)');
-        me.getImage().getEl().setStyle('-webkit-transform', 'rotate(' + me.getRotation() + 'deg)');
+        me.getImage().getEl().applyStyles({
+            'transform': transformStyle,
+            '-o-transform': transformStyle,
+            '-ms-transform': transformStyle,
+            '-moz-transform': transformStyle,
+            '-webkit-transform': transformStyle
+        });
 
         me.setMargins(me.getMargins());
     },
