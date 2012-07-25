@@ -22,6 +22,18 @@ Ext.define('ImageViewer', {
     initComponent: function () {
         var me = this;
 
+        me.tooltips = me.tooltips || {};
+
+        me.tooltips = Ext.applyIf(me.tooltips, {
+            stretchHorizontally: 'Stretch horizontally',
+            stretchVertically: 'Stretch vertically',
+            stretchOptimally: 'Stretch optimally',
+            zoomIn: 'Zoom in',
+            zoomOut: 'Zoom out',
+            rotateClockwise: 'Rotate clockwise',
+            rotateAntiClockwise: 'Rotate anticlockwise'
+        });
+
         me.items = [{
             xtype: 'toolbar',
             defaults: {
@@ -29,37 +41,37 @@ Ext.define('ImageViewer', {
             },
             items: [{
                 xtype: 'button',
-                tooltip: 'Stretch horizonally',
+                tooltip: me.tooltips.stretchHorizontally,
                 icon: 'resources/images/imageviewer/stretch_horizontally.png',
                 listeners: { click: me.stretchHorizontally, scope: me }
             }, {
                 xtype: 'button',
-                tooltip: 'Stretch vertically',
+                tooltip: me.tooltips.stretchVertically,
                 icon: 'resources/images/imageviewer/stretch_vertically.png',
                 listeners: { click: me.stretchVertically, scope: me }
             }, {
                 xtype: 'button',
-                tooltip: 'Stretch optimally',
+                tooltip: me.tooltips.stretchOptimally,
                 icon: 'resources/images/imageviewer/stretch_optimally.png',
                 listeners: { click: me.stretchOptimally, scope: me }
             }, {
                 xtype: 'button',
-                tooltip: 'Zoom in',
+                tooltip: me.tooltips.zoomIn,
                 icon: 'resources/images/imageviewer/zoom_in.png',
                 listeners: { click: me.zoomIn, scope: me }
             }, {
                 xtype: 'button',
-                tooltip: 'Zoom out',
+                tooltip: me.tooltips.zoomOut,
                 icon: 'resources/images/imageviewer/zoom_out.png',
                 listeners: { click: me.zoomOut, scope: me }
             }, {
                 xtype: 'button',
-                tooltip: 'Rotate clockwise',
+                tooltip: me.tooltips.rotateClockwise,
                 icon: 'resources/images/imageviewer/arrow_rotate_clockwise.png',
                 listeners: { click: me.rotateClockwise, scope: me }
             }, {
                 xtype: 'button',
-                tooltip: 'Rotate anti-clockwise',
+                tooltip: me.tooltips.rotateAntiClockwise,
                 icon: 'resources/images/imageviewer/arrow_rotate_anticlockwise.png',
                 listeners: { click: me.rotateAntiClockwise, scope: me }
             }]
@@ -211,7 +223,7 @@ Ext.define('ImageViewer', {
             height: me.getOriginalImageHeight() * adjustedImageSize.width * 0.9 / me.getOriginalImageWidth()
         });
 
-	    event.stopEvent();
+        event.stopEvent();
     },
 
     zoomIn: function (event) {
@@ -229,7 +241,7 @@ Ext.define('ImageViewer', {
             height: me.getOriginalImageHeight() * adjustedImageSize.width * 1.1 / me.getOriginalImageWidth()
         });
 
-	    event.stopEvent();
+        event.stopEvent();
     },
 
     rotateClockwise: function () {
