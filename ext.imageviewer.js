@@ -31,37 +31,37 @@ Ext.define('ImageViewer', {
                 xtype: 'button',
                 tooltip: 'Stretch horizonally',
                 icon: 'resources/images/imageviewer/stretch_horizontally.png',
-                listeners: { el: { click: me.stretchHorizontally, scope: me } }
+                listeners: { click: me.stretchHorizontally, scope: me }
             }, {
                 xtype: 'button',
                 tooltip: 'Stretch vertically',
                 icon: 'resources/images/imageviewer/stretch_vertically.png',
-                listeners: { el: { click: me.stretchVertically, scope: me } }
+                listeners: { click: me.stretchVertically, scope: me }
             }, {
                 xtype: 'button',
                 tooltip: 'Stretch optimally',
                 icon: 'resources/images/imageviewer/stretch_optimally.png',
-                listeners: { el: { click: me.stretchOptimally, scope: me } }
+                listeners: { click: me.stretchOptimally, scope: me }
             }, {
                 xtype: 'button',
                 tooltip: 'Zoom in',
                 icon: 'resources/images/imageviewer/zoom_in.png',
-                listeners: { el: { click: me.zoomIn, scope: me } }
+                listeners: { click: me.zoomIn, scope: me }
             }, {
                 xtype: 'button',
                 tooltip: 'Zoom out',
                 icon: 'resources/images/imageviewer/zoom_out.png',
-                listeners: { el: { click: me.zoomOut, scope: me } }
+                listeners: { click: me.zoomOut, scope: me }
             }, {
                 xtype: 'button',
                 tooltip: 'Rotate clockwise',
                 icon: 'resources/images/imageviewer/arrow_rotate_clockwise.png',
-                listeners: { el: { click: me.rotateClockwise, scope: me } }
+                listeners: { click: me.rotateClockwise, scope: me }
             }, {
                 xtype: 'button',
                 tooltip: 'Rotate anti-clockwise',
                 icon: 'resources/images/imageviewer/arrow_rotate_anticlockwise.png',
-                listeners: { el: { click: me.rotateAntiClockwise, scope: me } }
+                listeners: { click: me.rotateAntiClockwise, scope: me }
             }]
         }, {
             xtype: 'container',
@@ -201,8 +201,6 @@ Ext.define('ImageViewer', {
             margins = me.getMargins(),
             adjustedImageSize = me.getAdjustedImageSize();
 
-        event.stopEvent();
-
         me.setMargins({
             top: margins.top + adjustedImageSize.height * 0.05,
             left: margins.left + adjustedImageSize.width * 0.05
@@ -212,14 +210,14 @@ Ext.define('ImageViewer', {
             width: adjustedImageSize.width * 0.9,
             height: me.getOriginalImageHeight() * adjustedImageSize.width * 0.9 / me.getOriginalImageWidth()
         });
+
+	    event.stopEvent();
     },
 
     zoomIn: function (event) {
         var me = this,
             margins = me.getMargins(),
             adjustedImageSize = me.getAdjustedImageSize();
-
-        event.stopEvent();
 
         me.setMargins({
             top: margins.top - adjustedImageSize.height * 0.05,
@@ -230,6 +228,8 @@ Ext.define('ImageViewer', {
             width: adjustedImageSize.width * 1.1,
             height: me.getOriginalImageHeight() * adjustedImageSize.width * 1.1 / me.getOriginalImageWidth()
         });
+
+	    event.stopEvent();
     },
 
     rotateClockwise: function () {
