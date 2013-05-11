@@ -208,7 +208,7 @@ Ext.define('ImageViewer', {
         }
     },
 
-    zoomOut: function (event) {
+    zoomOut: function (btn, event, opts) {
         var me = this,
             margins = me.getMargins(),
             adjustedImageSize = me.getAdjustedImageSize();
@@ -226,7 +226,7 @@ Ext.define('ImageViewer', {
         event.stopEvent();
     },
 
-    zoomIn: function (event) {
+    zoomIn: function (btn, event, opts) {
         var me = this,
             margins = me.getMargins(),
             adjustedImageSize = me.getAdjustedImageSize();
